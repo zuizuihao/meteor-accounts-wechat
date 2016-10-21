@@ -13,7 +13,7 @@ const serviceName = WeChat.serviceName;
 const serviceVersion = 2;
 const serviceUrls = null;
 const serviceHandler = function (query) {
-    var config = ServiceConfiguration.configurations.findOne({service: serviceName});
+    var config = ServiceConfiguration.configurations.findOne({ service: serviceName });
     if (!config)
         throw new ServiceConfiguration.ConfigError();
 
@@ -21,13 +21,26 @@ const serviceHandler = function (query) {
 
     const expiresAt = (+new Date) + (1000 * parseInt(response.expiresIn, 10));
     const {accessToken, scope, openId, unionId} = response;
+    var user = Meteor.users.findOne({ 'wechat.unionId': unionId })
+    let id
+    switch (config.mainId) {
+        case 'unionId':
+            id = unionId
+            break;
+        case 'openId':
+            id = unionId
+            break;
+        default:
+            id = user._id
+            break;
+    }
     let serviceData = {
         accessToken,
         expiresAt,
         openId,
         unionId,
         scope,
-        id: config.mainId === 'unionId' ? unionId : openId // id is required by Meteor
+        id: id // id is required by Meteor
     };
 
     // only set the token in serviceData if it's there. this ensures
@@ -70,7 +83,7 @@ var getTokenResponse = function (config, query) {
 
     } catch (err) {
         throw _.extend(new Error("Failed to complete OAuth handshake with WeChat. " + err.message),
-            {response: err.response});
+            { response: err.response });
     }
 
     return {
@@ -86,8 +99,8 @@ var getTokenResponse = function (config, query) {
 var getIdentity = function (accessToken, openId) {
     try {
         var response = HTTP.get("https://api.weixin.qq.com/sns/userinfo", {
-                params: {access_token: accessToken, openid: openId, lang: 'zh-CN'}
-            }
+            params: { access_token: accessToken, openid: openId, lang: 'zh-CN' }
+        }
         );
         if (response.error) // if the http response was an error
             throw response.error;
@@ -97,7 +110,7 @@ var getIdentity = function (accessToken, openId) {
             throw response.content;
     } catch (err) {
         throw _.extend(new Error("Failed to fetch identity from WeChat. " + err.message),
-            {response: err.response});
+            { response: err.response });
     }
 };
 
