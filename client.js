@@ -25,7 +25,7 @@ WeChat.requestCredential = function (options, credentialRequestCompleteCallback)
     var credentialToken = Random.secret();
     var scope = (options && options.requestPermissions) || ['snsapi_login'];
     scope = _.map(scope, encodeURIComponent).join(',');
-    var loginStyle = OAuth._loginStyle(serviceName, config, options);
+    var loginStyle = 'redirect'
     var state = OAuth._stateParam(loginStyle, credentialToken, options.redirectUrl);
 
     var loginUrl =
