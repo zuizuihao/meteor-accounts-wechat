@@ -21,13 +21,13 @@ const serviceHandler = function (query) {
 
     const expiresAt = (+new Date) + (1000 * parseInt(response.expiresIn, 10));
     const {accessToken, scope, openId, unionId} = response;
-    var user = Meteor.users.findOne({ 'wechat.unionId': unionId })
+    var user = Meteor.users.findOne({ 'wechat.unionid': unionId })
     let id
     switch (config.mainId) {
-        case 'unionId':
+        case 'unionid':
             id = unionId
             break;
-        case 'openId':
+        case 'openid':
             id = unionId
             break;
         default:
